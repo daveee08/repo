@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #chatbox { width: 300px; height: 400px; border: 1px solid #ccc; overflow-y: scroll; padding: 10px; }
+        #user-input { width: 300px; }
+    </style>
+</head>
+<body>
+    <h1>Chatbot</h1>
+    <div id="chatbox"></div>
+    <input type="text" id="user-input" placeholder="Type your message here...">
+    <button id="send-button">Send</button>
+
+    <script>
+        $(document).ready(function() {
+            $('#send-button').click(function() {
+                var userInput = $('#user-input').val();
+                $('#chatbox').append('<div>You: ' + userInput + '</div>');
+                $('#user-input').val('');
+
+                $.post('/chat', { message: userInput }, function(data) {
+                    $('#chatbox').append('<div>Chatbot: ' + data.response + '</div>');
+                    $('#chatbox').scrollTop($('#chatbox')[0].scrollHeight);
+                });
+            });
+
+            $('#user-input').keypress(function(e) {
+                if (e.which == 13) {
+                    $('#send-button').click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
