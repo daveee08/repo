@@ -16,7 +16,7 @@ class ChatHistory(BaseModel):
 
 # Function to get chatbot response
 def get_chatbot_response(messages):
-    api_key = "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"
+    api_key = "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"
     url = "https://openrouter.ai/api/v1/chat/completions"
 
     headers = {
@@ -42,9 +42,9 @@ def get_chatbot_response(messages):
 
 # Function to clean the response
 def clean_response(response):
-    cleaned_response = response.strip()  # Remove leading/trailing whitespace
-    cleaned_response = cleaned_response.replace('*', '')  # Remove asterisks
-    cleaned_response = cleaned_response.replace('`', '')  # Remove backticks if present
+    cleaned_response = response.strip()
+    cleaned_response = cleaned_response.replace('*', '')
+    cleaned_response = cleaned_response.replace('`', '')
     return cleaned_response
 
 def connect_to_db():
@@ -108,7 +108,6 @@ def main():
                     </div>
                 """, unsafe_allow_html=True)
 
-    # User input field at the bottom using text_area for better formatting
     user_input = st.text_area("Type your prompt here...", key="input_field", placeholder="Type your message...", height=150)
 
     def send_message():
