@@ -73,15 +73,15 @@ def main():
 
     # Dropdown for Learner Level
     learner_level = ["Slow Learner", "Average Learner", "Advanced Learner"]
-    selected_learner_level = st.selectbox("Select Learner Level:", learner_level)
+    selected_learner_level = st.selectbox("Select Learner Level:", learner_level, index=None)
 
     # Dropdown for Learner Grade
     learner_grade = ["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"]
-    selected_learner_grade = st.selectbox("Select Grade Level:", learner_grade)
+    selected_learner_grade = st.selectbox("Select Grade Level:", learner_grade, index=None)
 
     # Dropdown for Type of Learner
     learner_type = ["Visual Learner", "Auditory Learner", "Kinesthetic Learner", "Read/Write Learner"]
-    selected_learner_type = st.selectbox("Select Type of Learner:", learner_type)
+    selected_learner_type = st.selectbox("Select Type of Learner:", learner_type, index=None)
 
     if 'chat_history' not in st.session_state:
         st.session_state.chat_history = ChatHistory(messages=[])
