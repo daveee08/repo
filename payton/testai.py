@@ -3,7 +3,6 @@ import json
 import mysql.connector
 from pydantic import BaseModel
 from typing import List
-import re
 import streamlit as st
 import time
 
@@ -17,11 +16,11 @@ class ChatHistory(BaseModel):
 
 # Function to get chatbot response
 def get_chatbot_response(messages):
-    api_key = "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"
+    api_key = "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"
     url = "https://openrouter.ai/api/v1/chat/completions"
 
     headers = {
-        "Authorization": f"Bearer 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",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
     }
 
@@ -36,17 +35,24 @@ def get_chatbot_response(messages):
 
     if response.status_code == 200:
         response_data = response.json()
-        return response_data['choices'][0]['message']['content']
+        return clean_response(response_data['choices'][0]['message']['content'])
     else:
         print(f"Error: {response.status_code} - {response.text}")
         return None
 
+# Function to clean the response
+def clean_response(response):
+    cleaned_response = response.strip()  # Remove leading/trailing whitespace
+    cleaned_response = cleaned_response.replace('*', '')  # Remove asterisks
+    cleaned_response = cleaned_response.replace('`', '')  # Remove backticks if present
+    return cleaned_response
+
 def connect_to_db():
     return mysql.connector.connect(
         host="localhost",
-        user="root",  # Replace with your MySQL username
-        password="",  # Replace with your MySQL password
-        database="aiprompt"  # Replace with your MySQL database name
+        user="root",
+        password="",
+        database="aiprompt"
     )
 
 def store_chat_history(user_input: str, ai_response: str):
@@ -60,63 +66,96 @@ def store_chat_history(user_input: str, ai_response: str):
     cursor.close()
     db.close()
 
-def clean_ai_response(response: str) -> str:
-    response = response.strip()
-    response = re.sub(r'[^\w\s,.!?]', '', response)
-    return response
-
-# Streamlit UI
 def main():
-    st.set_page_config(page_title="Chatbot", page_icon="🤖", layout="wide")
-    st.title("Chatbot 🤖")
-    st.write("Welcome to the Chatbot! Type your message below.")
+    st.set_page_config(page_title="BLOOMEDGE", page_icon="🧠", layout="wide")
+    st.title("Bloomedge 🧠")
+    st.write("Welcome to the Bloomedge Chatbot! Type your message below.")
 
-    # Initialize chat history
-    chat_history = ChatHistory(messages=[])
+    # Dropdown for Learner Level
+    learner_level = ["Slow Learner", "Average Learner", "Advanced Learner"]
+    selected_learner_level = st.selectbox("Select Learner Level:", learner_level)
 
-    # Create a container for the chat messages
+    # Dropdown for Learner Grade
+    learner_grade = ["Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"]
+    selected_learner_grade = st.selectbox("Select Grade Level:", learner_grade)
+
+    # Dropdown for Type of Learner
+    learner_type = ["Visual Learner", "Auditory Learner", "Kinesthetic Learner", "Read/Write Learner"]
+    selected_learner_type = st.selectbox("Select Type of Learner:", learner_type)
+
+    if 'chat_history' not in st.session_state:
+        st.session_state.chat_history = ChatHistory(messages=[])
+
     chat_container = st.container()
 
-    # User input
-    user_input = st.text_input("You:", "")
+    # Display chat messages
+    with chat_container:
+        for message in st.session_state.chat_history.messages:
+            if message.role == "user":
+                st.markdown(f"""
+                    <div style='text-align: right;'>
+                        <div style='border-radius: 15px; background-color: #4287f5; padding: 10px; margin: 5px; max-width: 70%; display: inline-block; color: white;'>
+                            {message.content}
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown(f"""
+                    <div style='text-align: left;'>
+                        <div style='border-radius: 15px; background-color: #334f7a; padding: 10px; margin: 5px; max-width: 70%; display: inline-block;'>
+                            {message.content}
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
 
-    if st.button("Send"):
+    # User input field at the bottom using text_area for better formatting
+    user_input = st.text_area("Type your message here...", key="input_field", placeholder="Type your message...", height=150)
+
+    def send_message():
         if user_input:
             user_message = Message(role="user", content=user_input)
-            chat_history.messages.append(user_message)
+            st.session_state.chat_history.messages.append(user_message)
 
-            # Display user message
             with chat_container:
-                st.markdown(f"<div style='text-align: right;'> {user_input}</div>", unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div style='text-align: right;'>
+                        <div style='border-radius: 15px; text-align: left; background-color:  #4287f5; padding: 10px; margin: 5px; max-width: 70%; display: inline-block; color: white;'>
+                            {user_input}
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
 
-            # Simulate typing indicator
             typing_placeholder = st.empty()
             typing_placeholder.markdown("<div style='text-align: left;'><i>Chatbot is typing...</i></div>", unsafe_allow_html=True)
 
-            # Simulate a delay for typing effect
-            time.sleep(2)  # Simulate typing time (adjust as needed)
+            time.sleep(2)
 
-            # Get AI response
-            response = get_chatbot_response(chat_history.messages)
+            response = get_chatbot_response(st.session_state.chat_history.messages + [
+                Message(role="system", content=f"Learner Level: {selected_learner_level}, Grade: {selected_learner_grade}, Type: {selected_learner_type}")
+            ])
 
             if response:
-                # Clean the AI response
-                cleaned_response = clean_ai_response(response)
-                chat_history.messages.append(Message(role="assistant", content=cleaned_response))
+                st.session_state.chat_history.messages.append(Message(role="assistant", content=response))
 
-                # Store user input and cleaned AI response in the database
-                store_chat_history(user_input, cleaned_response)
+                store_chat_history(user_input, response)
 
-                # Clear typing indicator
                 typing_placeholder.empty()
 
-                # Display chatbot response
                 with chat_container:
-                    st.markdown(f"<div style='text-align: left;'> {cleaned_response}</div>", unsafe_allow_html=True)
+                    st.markdown(f"""
+                        <div style='text-align: left;'>
+                            <div style='border-radius: 15px; background-color:#444a46; padding: 10px; margin: 5px; max-width: 70%; display: inline-block;'>
+                                {response}
+                            </div>
+                        </div>
+                    """, unsafe_allow_html=True)
 
             else:
                 typing_placeholder.empty()
                 st.write("Chatbot: Sorry, I couldn't get a response.")
+
+    if user_input:
+        send_message()
 
 if __name__ == "__main__":
     main()
