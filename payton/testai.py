@@ -16,7 +16,7 @@ class ChatHistory(BaseModel):
 
 # Function to get chatbot response
 def get_chatbot_response(messages):
-    api_key = "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"
+    api_key = "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"
     url = "https://openrouter.ai/api/v1/chat/completions"
 
     headers = {
