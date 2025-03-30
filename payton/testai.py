@@ -109,7 +109,7 @@ def main():
                 """, unsafe_allow_html=True)
 
     # User input field at the bottom using text_area for better formatting
-    user_input = st.text_area("Type your message here...", key="input_field", placeholder="Type your message...", height=150)
+    user_input = st.text_area("Type your prompt here...", key="input_field", placeholder="Type your message...", height=150)
 
     def send_message():
         if user_input:
