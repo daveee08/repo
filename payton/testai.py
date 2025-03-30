@@ -16,7 +16,7 @@ class ChatHistory(BaseModel):
 
 # Function to get chatbot response
 def get_chatbot_response(messages):
-    api_key = "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"
+    api_key = "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"
     url = "https://openrouter.ai/api/v1/chat/completions"
 
     headers = {
@@ -55,12 +55,12 @@ def connect_to_db():
         database="aiprompt"
     )
 
-def store_chat_history(user_input: str, ai_response: str):
+def store_chat_history(user_input: str, ai_response: str, learner_level: str, grade_level: str, learner_type: str):
     db = connect_to_db()
     cursor = db.cursor()
     
-    sql = "INSERT INTO chat_history (user_input, ai_response) VALUES (%s, %s)"
-    cursor.execute(sql, (user_input, ai_response))
+    sql = "INSERT INTO chat_history (user_input, ai_response, learner_level, grade_level, learner_type) VALUES (%s, %s, %s, %s, %s)"
+    cursor.execute(sql, (user_input, ai_response, learner_level, grade_level, learner_type))
     
     db.commit()
     cursor.close()
@@ -102,7 +102,7 @@ def main():
             else:
                 st.markdown(f"""
                     <div style='text-align: left;'>
-                        <div style='border-radius: 15px; background-color: #334f7a; padding: 10px; margin: 5px; max-width: 70%; display: inline-block;'>
+                        <div style='border-radius: 15px; background-color: #47484d; padding: 10px; margin: 5px; max-width: 70%; display: inline-block;'>
                             {message.content}
                         </div>
                     </div>
@@ -136,7 +136,7 @@ def main():
             if response:
                 st.session_state.chat_history.messages.append(Message(role="assistant", content=response))
 
-                store_chat_history(user_input, response)
+                store_chat_history(user_input, response, selected_learner_level, selected_learner_grade, selected_learner_type)
 
                 typing_placeholder.empty()
 
