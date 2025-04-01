@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from typing import List
 import streamlit as st
 import time
-
+###########
 # Pydantic models
 class Message(BaseModel):
     role: str
@@ -16,7 +16,7 @@ class ChatHistory(BaseModel):
 
 # Function to get chatbot response
 def get_chatbot_response(messages):
-    api_key = "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"
+    api_key = "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"
     url = "https://openrouter.ai/api/v1/chat/completions"
 
     headers = {
