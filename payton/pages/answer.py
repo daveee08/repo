@@ -29,7 +29,7 @@ def clean_response(response):
 
 
 def get_chatbot_response(messages):
-    api_key = "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"
+    api_key = "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"
     url = "https://openrouter.ai/api/v1/chat/completions"
 
     headers = {
